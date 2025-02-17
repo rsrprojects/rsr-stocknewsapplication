@@ -1,6 +1,10 @@
 pipeline {
     agent {
-        any
+        docker {
+            image 'python:3.9'
+            // make sudo commands
+            args '-u root:root'
+        }
     }
 
     enviorment {
