@@ -7,6 +7,10 @@ pipeline {
         }
     }
 
+    options {
+        skipDefaultCheckout(true)
+    }
+    
     environment {
         API_KEY = credentials('NEWS_API_KEY') // Getting the API key from Jenkins credentials
         DOCKER_REGISTRY = 'rsrprojects/nothing-special'
@@ -80,6 +84,10 @@ pipeline {
                     image 'docker:latest'
                     args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
                 }
+            }
+
+            options {
+                skipDefaultCheckout(true)
             }
             
             steps {
