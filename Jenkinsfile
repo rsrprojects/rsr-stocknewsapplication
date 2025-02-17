@@ -1,14 +1,11 @@
 pipeline {
     agent {
-        docker {
-            image 'python:3.9'
-            // make sudo commands
-            args '-u root:root'
-        }
+        any
     }
 
     enviorment {
         API_KEY = credentials('NEWS_API_KEY') // Getting the API key from jenkins credentials
+    }
 
     stages {
 
@@ -21,6 +18,7 @@ pipeline {
         stage('Prepere Enviorment') {
             steps {
                 sh 'echo "${API_KEY}" > .env' // Create .env file in the working directory
+            }
 
         stage('Install Dependencies') {
             steps{
