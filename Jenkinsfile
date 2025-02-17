@@ -39,7 +39,7 @@ pipeline {
                 sh '''
                     pip install --upgrade pip
                     pip install -r requirements.txt
-                    # Install dev tools: Linting, testing, security scanning
+                    // Install dev tools: Linting, testing, security scanning
                     pip install flake8 bandit pytest
                 '''
             }
