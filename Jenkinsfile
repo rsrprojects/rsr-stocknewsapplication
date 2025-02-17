@@ -13,6 +13,12 @@ pipeline {
 
     stages {
 
+        stage('Debug') {
+            steps {
+                sh 'echo "Cheking Jenkins..."'
+            }
+        }
+
         stage('checkout') {
             steps {
                 checkout scm
@@ -21,7 +27,10 @@ pipeline {
 
         stage('Prepare Environment') {
             steps {
-                sh 'echo "NEWS_API_KEY=${API_KEY}" > .env' // Create .env file in the working directory
+                sh '''
+                echo "NEWS_API_KEY=${API_KEY}" > .env // Create .env file in the working directory
+                echo "Debug: Contant of .env file"
+                cat .env
             }
         }
 
@@ -51,7 +60,6 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 sh '''
-                    export $(cat .env | xargs)  # Load .env variables
                     PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1
                 '''
             }
