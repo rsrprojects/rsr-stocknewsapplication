@@ -3,8 +3,8 @@ pipeline {
         any
     }
 
-    enviorment {
-        API_KEY = credentials('NEWS_API_KEY') // Getting the API key from jenkins credentials
+    environment {
+        API_KEY = credentials('NEWS_API_KEY') // Getting the API key from Jenkins credentials
     }
 
     stages {
@@ -15,17 +15,18 @@ pipeline {
             }
         }
 
-        stage('Prepere Enviorment') {
+        stage('Prepare Environment') {
             steps {
-                sh 'echo "${API_KEY}" > .env' // Create .env file in the working directory
+                sh 'echo "NEWS_API_KEY=${API_KEY}" > .env' // Create .env file in the working directory
             }
+        }
 
         stage('Install Dependencies') {
-            steps{
+            steps {
                 sh '''
                     pip install --upgrade pip
                     pip install -r requirements.txt
-                    # Install dev tools: Linting, testing, security scaning
+                    # Install dev tools: Linting, testing, security scanning
                     pip install flake8 bandit pytest
                 '''
             }
@@ -45,14 +46,17 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                sh 'PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1'
+                sh '''
+                    export $(cat .env | xargs)  # Load .env variables
+                    PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1
+                '''
             }
         }
     }
 
     post {
         always {
-            echo 'Pipline finished.'
+            echo 'Pipeline finished.'
         }
 
         success {
