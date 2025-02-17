@@ -1,15 +1,17 @@
 import pytest
+import os
+from dotenv import load_dotenv
 import app.news_scraper as news_scraper
 
+# Load environment variables
+load_dotenv()
 
-@pytest.fixture
-def mock_no_api_key(monkeypatch):
-    """Ensure NEWS_API_KEY is not set."""
-    monkeypatch.delenv("NEWS_API_KEY", raising=False)
+def test_news_fetching_with_env_api_key():
+    """Test if get_magnificent_seven_news works with API key from .env"""
+    
+    assert os.getenv("NEWS_API_KEY"), "❌ NEWS_API_KEY is missing in the .env file!"
 
-
-def test_news_fetching_without_api_key(mock_no_api_key):
-    """Test if get_magnificent_seven_news returns an empty list when API key is missing."""
     news = news_scraper.get_magnificent_seven_news()
-    assert isinstance(news, list)  # Ensure it returns a list
-    assert len(news) > 0  # Should return an list
+
+    assert isinstance(news, list)
+    assert len(news) > 0
