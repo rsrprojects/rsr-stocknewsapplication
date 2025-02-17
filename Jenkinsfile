@@ -28,18 +28,19 @@ pipeline {
         stage('Prepare Environment') {
             steps {
                 sh '''
-                echo "NEWS_API_KEY=${API_KEY}" > .env // Create .env file in the working directory
-                echo "Debug: Contant of .env file"
-                cat .env
+                    echo "NEWS_API_KEY=${API_KEY}" > .env // Create .env file in the working directory
+                    echo "Debug: Contant of .env file"
+                    cat .env
+                '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
+                // Install dev tools: Linting, testing, security scanning
                 sh '''
                     pip install --upgrade pip
                     pip install -r requirements.txt
-                    // Install dev tools: Linting, testing, security scanning
                     pip install flake8 bandit pytest
                 '''
             }
