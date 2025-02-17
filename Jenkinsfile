@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.9'
+            // make sudo commands
+            args '-u root:root'
+        }
+    }
 
     environment {
         API_KEY = credentials('NEWS_API_KEY') // Getting the API key from Jenkins credentials
