@@ -50,10 +50,7 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                sh '''
-                    export $(cat .env | xargs)  # Load .env variables
-                    PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1
-                '''
+                sh 'PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1'
             }
         }
     }
