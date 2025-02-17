@@ -9,13 +9,16 @@ pipeline {
 
     environment {
         API_KEY = credentials('NEWS_API_KEY') // Getting the API key from Jenkins credentials
+        DOCKER_REGISTRY = 'rsrprojects/nothing-special'
+        IMAGE_NAME = 'news-app'
+        IMAGE_TAG = 'v1.0'
     }
 
     stages {
 
         stage('Debug') {
             steps {
-                sh 'echo "Cheking Jenkins..."'
+                sh 'echo "Checking Jenkins..."'
             }
         }
 
@@ -29,7 +32,7 @@ pipeline {
             steps {
                 sh '''
                     echo "NEWS_API_KEY=${API_KEY}" > .env
-                    echo "Debug: Contant of .env file"
+                    echo "Debug: Content of .env file"
                     cat .env
                 '''
             }
@@ -62,6 +65,25 @@ pipeline {
             steps {
                 sh 'PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1'
             }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                    docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                 withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                     sh '''
+                         echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin ${DOCKER_REGISTRY}
+                         docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                     '''
+                 } 
+            }        
         }
     }
 
