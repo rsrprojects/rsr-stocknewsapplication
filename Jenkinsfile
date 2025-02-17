@@ -80,8 +80,6 @@ pipeline {
 
         stage('Docker Build and Push') {
             steps {
-                unstash 'workspace'
-                
                 withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                         echo "Building Docker image..."
