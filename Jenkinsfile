@@ -67,26 +67,29 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Build and Push') {
+            agent {
+                docker {
+                    image 'docker:latest'
+                    args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }    
             steps {
-                sh '''
-                    docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
-                '''
+                withDockerRegistry([credentialsId: 'DOCKER_HUB_CREDENTIALS', url: 'https://index.docker.io/v1/']) {
+                    sh '''
+                        echo "Building Docker image..."
+                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
+                        
+                        echo "Logging into Docker Hub..."
+                        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                        
+                        echo "Pushing Docker image..."
+                        docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                    '''
+                }
             }
         }
-
-        stage('Push Docker Image') {
-            steps {
-                 withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                     sh '''
-                         echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin ${DOCKER_REGISTRY}
-                         docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                     '''
-                 } 
-            }        
-        }
     }
-
 
     post {
         always {
