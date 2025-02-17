@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        any
-    }
+    agent any
 
     environment {
         API_KEY = credentials('NEWS_API_KEY') // Getting the API key from Jenkins credentials
