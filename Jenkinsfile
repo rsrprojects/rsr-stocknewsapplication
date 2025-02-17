@@ -67,14 +67,24 @@ pipeline {
             }
         }
 
+        stage('Stash Code') {
+            steps {
+                sh 'ls -la'  // Debug: Show files before stashing
+                stash includes: '**', name: 'workspace'
+            }
+        }
+
         stage('Docker Build and Push') {
             agent {
                 docker {
                     image 'docker:latest'
                     args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
                 }
-            }    
+            }
+            
             steps {
+                unstash 'workspace'
+                
                 withDockerRegistry([credentialsId: 'DOCKER_HUB_CREDENTIALS', url: 'https://index.docker.io/v1/']) {
                     sh '''
                         echo "Building Docker image..."
