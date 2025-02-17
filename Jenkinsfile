@@ -93,13 +93,13 @@ pipeline {
             steps {
                 unstash 'workspace'
                 
-                withDockerRegistry([credentialsId: 'DOCKER_HUB_CREDENTIALS', url: 'https://index.docker.io/v1/']) {
+                withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                         echo "Building Docker image..."
                         docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
                         
                         echo "Logging into Docker Hub..."
-                        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                        echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
                         
                         echo "Pushing Docker image..."
                         docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
