@@ -28,7 +28,7 @@ pipeline {
         stage('Prepare Environment') {
             steps {
                 sh '''
-                    echo "NEWS_API_KEY=${API_KEY}" > .env // Create .env file in the working directory
+                    echo "NEWS_API_KEY=${API_KEY}" > .env
                     echo "Debug: Contant of .env file"
                     cat .env
                 '''
