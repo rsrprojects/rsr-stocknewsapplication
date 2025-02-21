@@ -28,6 +28,8 @@ pipeline {
           echo "NEWS_API_KEY=${API_KEY}" > .env
           echo "Debug: Content of .env file"
           cat .env
+          chmod 644 .env
+          chown 1000:1000 .env
         '''
       }
     }
