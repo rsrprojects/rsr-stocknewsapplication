@@ -84,7 +84,7 @@ pipeline {
       steps {
         sh '''
           echo "Running unit tests..."
-          python3 -m PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1
+          PYTHONPATH=$PYTHONPATH:. python3 -m pytest tests/ --maxfail=1
         '''
       }
     }
