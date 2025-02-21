@@ -12,7 +12,14 @@ pipeline {
     IMAGE_TAG = 'v1.0'
   }
 
+  
   stages {
+    stage('checkout') {
+      steps {
+          checkout scm
+      }
+    }  
+
     stage('Prepare Environment') {
       steps {
         sh '''
