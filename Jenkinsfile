@@ -59,16 +59,16 @@ pipeline {
     }
     stage('Install Dependencies') {
       steps {
-        sh 'python3 pip install --upgrade pip'
-        sh 'python3 pip install -r requirements.txt'
-        sh 'python3 pip install flake8 bandit pytest'
+        sh 'python3 -m pip install --upgrade pip'
+        sh 'python3 -m pip install -r requirements.txt'
+        sh 'python3 -m pip install flake8 bandit pytest'
       }
     }
     stage('Lint') {
       steps {
         sh '''
           echo "Running Linter..."
-          python3 flake8 . || echo "Linting completed with warnings."
+          python3 -m flake8 . || echo "Linting completed with warnings."
         '''
       }
     }
@@ -76,7 +76,7 @@ pipeline {
       steps {
         sh '''
           echo "Running security scan with Bandit..."
-          python3 bandit -r . --severity-level medium || echo "Bandit scan completed with warnings."
+          python3 -m bandit -r . --severity-level medium || echo "Bandit scan completed with warnings."
         '''
       }
     }
@@ -84,7 +84,7 @@ pipeline {
       steps {
         sh '''
           echo "Running unit tests..."
-          python3 PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1
+          python3 -m PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1
         '''
       }
     }
