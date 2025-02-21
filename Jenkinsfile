@@ -69,7 +69,7 @@ pipeline {
     stage('Stash Code') {
       steps {
         sh 'ls -la'
-        stash(includes: '**', excludes: '.env', name: 'workspace')
+        stash(includes: '**', excludes: '.pytest_cache/**, .env', name: 'workspace')
       }
     }
     stage('unstash code') {
