@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
         image 'python:3.9'
-        args '--user root'
+        // args '--user root'
     }
   }
   options {
@@ -108,7 +108,7 @@ pipeline {
         ls -la
         echo "Building Docker image..."
         sleep 5
-        docker build --progress=plain --no-cache -t ${DOCKER_REGISTRY}/somthing:latest .
+        docker build --progress=plain --no-cache -t ${DOCKER_REGISTRY}/something:latest .
         '''
       }
     }
@@ -123,7 +123,7 @@ pipeline {
     stage('push') {
       agent any
       steps {
-        sh 'docker push ${DOCKER_REGISTRY}/somthing:latest'
+        sh 'docker push ${DOCKER_REGISTRY}/something:latest'
       }
     }
 
