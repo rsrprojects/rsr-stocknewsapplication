@@ -127,8 +127,4 @@ pipeline {
       echo 'One or more checks failed. Docker build will be skipped.'
     }
   }
-
-  options {
-    skipDefaultCheckout(true)
-  }
 }
