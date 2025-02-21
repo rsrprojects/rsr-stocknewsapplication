@@ -20,9 +20,10 @@ pipeline {
     stage('Install Python') {
       steps {
         sh '''
-          apt upgrade
-          apt install python3
           python3 --version
+          // apt upgrade
+          // apt install python3
+          // python3 --version
         '''
       }
     }
