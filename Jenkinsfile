@@ -75,14 +75,14 @@ pipeline {
       }
     }
 
-    stage('unstash code') {
-      agent any
-      steps {
-        script {
-          unstash 'workspace'
-        }
-      }
-    }
+    // stage('unstash code') {
+    //   agent any
+    //   steps {
+    //     script {
+    //       unstash 'workspace'
+    //     }
+    //   }
+    // }
 
     stage('build') {
       agent any
