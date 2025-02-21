@@ -29,9 +29,9 @@ pipeline {
       steps {
         sh '''
           apt-get update
-          apt install curl
-          apt-get install ca-certificates curl
-          install -m 0755 -d /etc/apt/keyrings
+          apt install curl -y
+          apt-get install ca-certificates curl -y
+          install -m 0755 -d /etc/apt/keyrings -y
           curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
           chmod a+r /etc/apt/keyrings/docker.asc  
           echo \
@@ -39,7 +39,7 @@ pipeline {
             $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
             tee /etc/apt/sources.list.d/docker.list > /dev/null
           apt-get update
-          apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
         '''
       }
     }
