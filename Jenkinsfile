@@ -7,9 +7,10 @@ pipeline {
   }
   environment {
     API_KEY = credentials('NEWS_API_KEY')
-    DOCKER_REGISTRY = 'rsrprojects/nothing-special'
+    DOCKER_REGISTRY = 'rsrprojects'
     IMAGE_NAME = 'news-app'
     IMAGE_TAG = 'v1.0'
+    DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
   }
 
   
@@ -74,29 +75,40 @@ pipeline {
       }
     }
 
-    stage('Docker Build and Push') {
+    stage('unstash code') {
       agent any
-      when {
-        expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-      }
       steps {
         script {
           unstash 'workspace'
         }
-        withCredentials([
-          usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
-        ]) {
-          sh '''
-            echo "Building Docker image..."
-            docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
+      }
+    }
 
-            echo "Logging into Docker Hub..."
-            echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+    stage('build') {
+      agent any
+      steps {
+        sh 'docker build -t ${DOCKER_REGISTRY}/somthing:latest .'
+      }
+    }
 
-            echo "Pushing Docker image..."
-            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-          '''
-        }
+    stage('login') {
+      agent any
+      steps {
+        sh 'echo $DOCKERHUB_CREDS_PSW | docker login -u $DOCKERHUB_CREDS_USR --password-stdin'
+      }
+    }
+
+    stage('push') {
+      agent any
+      steps {
+        sh 'docker push ${DOCKER_REGISTRY}/somthing:latest'
+      }
+    }
+
+    stage('logout') {
+      agent any
+      steps {
+        sh 'docker logout'
       }
     }
   }
