@@ -64,12 +64,12 @@ pipeline {
         '''
       }
     }
-    stage('Stash Code') {
-      steps {
-        sh 'ls -la'
-        stash(includes: '**', name: 'workspace')
-      }
-    }
+    // stage('Stash Code') {
+    //   steps {
+    //     sh 'ls -la'
+    //     stash(includes: '**', name: 'workspace')
+    //   }
+    // }
     // stage('unstash code') {
     //   agent any
     //   steps {
