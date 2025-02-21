@@ -28,8 +28,6 @@ pipeline {
           echo "NEWS_API_KEY=${API_KEY}" > .env
           echo "Debug: Content of .env file"
           cat .env
-          chmod 644 .env
-          chown 1000:1000 .env
         '''
       }
     }
@@ -72,20 +70,36 @@ pipeline {
         stash(includes: '**', excludes: '.pytest_cache/**, .env', name: 'workspace')
       }
     }
-    stage('unstash code') {
+    // stage('unstash code') {
+    //   agent any
+    //   steps {
+    //     script {
+    //       unstash 'workspace'
+    //     }
+    //     sh '''
+    //       echo "Recreating .env file..."
+    //       echo "NEWS_API_KEY=${API_KEY}" > .env
+    //       echo "Debug: Content of .env file"
+    //       cat .env
+    //     '''
+    //   }
+    // }   
+    stage('Second Checkout') {
       agent any
       steps {
-        script {
-          unstash 'workspace'
-        }
+        checkout scm
+      }
+    }
+    stage('prepare .env File') {
+      agent any
+      steps {
         sh '''
-          echo "Recreating .env file..."
           echo "NEWS_API_KEY=${API_KEY}" > .env
           echo "Debug: Content of .env file"
           cat .env
         '''
       }
-    }   
+    }
     stage('build') {
       agent any
       steps {
