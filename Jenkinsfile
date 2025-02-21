@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+        image 'python:3.9'
+        args '--user root'
+    }
+  }
   environment {
     API_KEY = credentials('NEWS_API_KEY')
     DOCKER_REGISTRY = 'rsrprojects/nothing-special'
@@ -21,7 +26,6 @@ pipeline {
     stage('Install Dependencies') {
       steps {
         sh '''
-          python3 \
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install flake8 bandit pytest
@@ -64,6 +68,7 @@ pipeline {
     }
 
     stage('Docker Build and Push') {
+      agent any
       when {
         expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
       }
