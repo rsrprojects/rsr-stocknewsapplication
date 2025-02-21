@@ -1,8 +1,8 @@
 pipeline {
   agent {
     docker {
-        image 'python:3.9'
-        // args '--user root'
+        image 'ubuntu:22.04'
+        args '-u root'
     }
   }
   options {
@@ -17,6 +17,33 @@ pipeline {
   }  
   stages {
     
+    stage('Install Python') {
+      steps {
+        sh '''
+          apt upgrade
+          apt install python3
+          python3 --version
+        '''
+      }
+    }
+    stage('Install Docker') {
+      steps {
+        sh '''
+          apt-get update
+          apt install curl
+          apt-get install ca-certificates curl
+          install -m 0755 -d /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          chmod a+r /etc/apt/keyrings/docker.asc  
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+            tee /etc/apt/sources.list.d/docker.list > /dev/null
+          apt-get update
+          apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        '''
+      }
+    }
     stage('checkout') {
       steps {
           checkout scm
@@ -101,7 +128,6 @@ pipeline {
     //   }
     // }
     stage('build') {
-      agent any
       steps {
         sh '''
         echo "Checking workspace files:"
@@ -112,23 +138,18 @@ pipeline {
         '''
       }
     }
-
     stage('login') {
-      agent any
       steps {
         sh 'echo $DOCKERHUB_CREDS_PSW | docker login -u $DOCKERHUB_CREDS_USR --password-stdin'
       }
     }
-
     stage('push') {
-      agent any
+
       steps {
         sh 'docker push ${DOCKER_REGISTRY}/something:latest'
       }
     }
-
     stage('logout') {
-      agent any
       steps {
         sh 'docker logout'
       }
