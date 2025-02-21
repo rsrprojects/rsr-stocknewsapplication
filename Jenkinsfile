@@ -64,42 +64,42 @@ pipeline {
         '''
       }
     }
-    // stage('Stash Code') {
-    //   steps {
-    //     sh 'ls -la'
-    //     stash(includes: '**', excludes: '.pytest_cache/**, .env', name: 'workspace')
-    //   }
-    // }
-    // stage('unstash code') {
-    //   agent any
-    //   steps {
-    //     script {
-    //       unstash 'workspace'
-    //     }
+    stage('Stash Code') {
+      steps {
+        sh 'ls -la'
+        stash(includes: '**', name: 'workspace')
+      }
+    }
+    stage('unstash code') {
+      agent any
+      steps {
+        script {
+          unstash 'workspace'
+        }
     //     sh '''
     //       echo "Recreating .env file..."
     //       echo "NEWS_API_KEY=${API_KEY}" > .env
     //       echo "Debug: Content of .env file"
     //       cat .env
     //     '''
-    //   }
-    // }   
+      }
+    }   
     // stage('Second Checkout') {
     //   agent any
     //   steps {
     //     checkout scm
     //   }
     // }
-    stage('prepare .env File') {
-      agent any
-      steps {
-        sh '''
-          echo "NEWS_API_KEY=${API_KEY}" > .env
-          echo "Debug: Content of .env file"
-          cat .env
-        '''
-      }
-    }
+    // stage('prepare .env File') {
+    //   agent any
+    //   steps {
+    //     sh '''
+    //       echo "NEWS_API_KEY=${API_KEY}" > .env
+    //       echo "Debug: Content of .env file"
+    //       cat .env
+    //     '''
+    //   }
+    // }
     stage('build') {
       agent any
       steps {
