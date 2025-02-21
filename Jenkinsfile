@@ -18,23 +18,14 @@ pipeline {
       }
     }
 
-    stage('Check Python Version') {
-       steps {
-           sh '''
-             echo "Checking if Python is available..."
-             which python || which python3 || echo "Python not found!"
-             python --version || python3 --version
-           '''
-       }
-    }
-
-
     stage('Install Dependencies') {
       steps {
         sh '''
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install flake8 bandit pytest
+          sudo apt install python3 -y
+          python3
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8 bandit pytest
         '''
       }
     }
