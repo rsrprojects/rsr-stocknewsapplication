@@ -82,8 +82,8 @@ pipeline {
     //       echo "Debug: Content of .env file"
     //       cat .env
     //     '''
-      }
-    }   
+    //   }
+    // }   
     // stage('Second Checkout') {
     //   agent any
     //   steps {
