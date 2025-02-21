@@ -87,7 +87,13 @@ pipeline {
     stage('build') {
       agent any
       steps {
-        sh 'docker build -t ${DOCKER_REGISTRY}/somthing:latest .'
+        sh '''
+        echo "Checking workspace files:"
+        ls -la
+        echo "Building Docker image..."
+        sleep 5
+        docker build -t ${DOCKER_REGISTRY}/somthing:latest .
+        '''
       }
     }
 
