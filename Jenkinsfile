@@ -70,12 +70,12 @@ pipeline {
         stash(includes: '**', name: 'workspace')
       }
     }
-    stage('unstash code') {
-      agent any
-      steps {
-        script {
-          unstash 'workspace'
-        }
+    // stage('unstash code') {
+    //   agent any
+    //   steps {
+    //     script {
+    //       unstash 'workspace'
+    //     }
     //     sh '''
     //       echo "Recreating .env file..."
     //       echo "NEWS_API_KEY=${API_KEY}" > .env
