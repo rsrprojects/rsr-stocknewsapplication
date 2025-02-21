@@ -22,6 +22,8 @@ pipeline {
       steps {
         sh '''
           python3
+        '''
+        sh '''
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install flake8 bandit pytest
