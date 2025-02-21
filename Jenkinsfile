@@ -6,7 +6,6 @@ pipeline {
     }
   }
   options {
-    cleanWs()
     skipDefaultCheckout(true)
   }
   environment {
