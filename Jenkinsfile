@@ -108,7 +108,7 @@ pipeline {
         ls -la
         echo "Building Docker image..."
         sleep 5
-        docker build -t ${DOCKER_REGISTRY}/somthing:latest .
+        docker build --progress=plain --no-cache -t ${DOCKER_REGISTRY}/somthing:latest .
         '''
       }
     }
