@@ -18,6 +18,17 @@ pipeline {
       }
     }
 
+    stage('Check Python Version') {
+       steps {
+           sh '''
+             echo "Checking if Python is available..."
+             which python || which python3 || echo "Python not found!"
+             python --version || python3 --version
+           '''
+       }
+    }
+
+
     stage('Install Dependencies') {
       steps {
         sh '''
