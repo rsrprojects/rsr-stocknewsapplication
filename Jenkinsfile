@@ -69,7 +69,7 @@ pipeline {
     stage('Stash Code') {
       steps {
         sh 'ls -la'
-        stash(includes: '**', name: 'workspace')
+        stash(includes: '**', excludes: '.env', name: 'workspace')
       }
     }
     stage('unstash code') {
@@ -78,6 +78,12 @@ pipeline {
         script {
           unstash 'workspace'
         }
+        sh '''
+          echo "Recreating .env file..."
+          echo "NEWS_API_KEY=${API_KEY}" > .env
+          echo "Debug: Content of .env file"
+          cat .env
+        '''
       }
     }   
     stage('build') {
