@@ -7,6 +7,7 @@ pipeline {
   }
   options {
     cleanWs()
+    skipDefaultCheckout(true)
   }
   environment {
     API_KEY = credentials('NEWS_API_KEY')
@@ -14,16 +15,14 @@ pipeline {
     IMAGE_NAME = 'news-app'
     IMAGE_TAG = 'v1.0'
     DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
-  }
-
-  
+  }  
   stages {
+    
     stage('checkout') {
       steps {
           checkout scm
       }
     }  
-
     stage('Prepare Environment') {
       steps {
         sh '''
@@ -33,7 +32,6 @@ pipeline {
         '''
       }
     }
-
     stage('Install Dependencies') {
       steps {
         sh '''
@@ -43,7 +41,6 @@ pipeline {
         '''
       }
     }
-
     stage('Lint') {
       steps {
         sh '''
@@ -52,7 +49,6 @@ pipeline {
         '''
       }
     }
-
     stage('Security Scan') {
       steps {
         sh '''
@@ -61,7 +57,6 @@ pipeline {
         '''
       }
     }
-
     stage('Unit Tests') {
       steps {
         sh '''
@@ -70,45 +65,20 @@ pipeline {
         '''
       }
     }
-
-    // stage('Stash Code') {
-    //   steps {
-    //     sh 'ls -la'
-    //     stash(includes: '**', name: 'workspace')
-    //   }
-    // }
-
-    // stage('unstash code') {
-    //   agent any
-    //   steps {
-    //     script {
-    //       unstash 'workspace'
-    //     }
-    //   }
-    // }
-    
-    options {
-      cleanWs()
-    }
-
-    stage('checkout') {
-      agent any
+    stage('Stash Code') {
       steps {
-          checkout scm
-      }
-    }  
-
-    stage('Prepare Environment') {
-      agent any
-      steps {
-        sh '''
-          echo "NEWS_API_KEY=${API_KEY}" > .env
-          echo "Debug: Content of .env file"
-          cat .env
-        '''
+        sh 'ls -la'
+        stash(includes: '**', name: 'workspace')
       }
     }
-    
+    stage('unstash code') {
+      agent any
+      steps {
+        script {
+          unstash 'workspace'
+        }
+      }
+    }   
     stage('build') {
       agent any
       steps {
