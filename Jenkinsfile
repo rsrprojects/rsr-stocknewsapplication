@@ -64,12 +64,12 @@ pipeline {
         '''
       }
     }
-    stage('Stash Code') {
-      steps {
-        sh 'ls -la'
-        stash(includes: '**', excludes: '.pytest_cache/**, .env', name: 'workspace')
-      }
-    }
+    // stage('Stash Code') {
+    //   steps {
+    //     sh 'ls -la'
+    //     stash(includes: '**', excludes: '.pytest_cache/**, .env', name: 'workspace')
+    //   }
+    // }
     // stage('unstash code') {
     //   agent any
     //   steps {
@@ -84,12 +84,12 @@ pipeline {
     //     '''
     //   }
     // }   
-    stage('Second Checkout') {
-      agent any
-      steps {
-        checkout scm
-      }
-    }
+    // stage('Second Checkout') {
+    //   agent any
+    //   steps {
+    //     checkout scm
+    //   }
+    // }
     stage('prepare .env File') {
       agent any
       steps {
