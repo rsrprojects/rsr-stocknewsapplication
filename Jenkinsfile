@@ -21,7 +21,7 @@ pipeline {
     stage('Install Dependencies') {
       steps {
         sh '''
-          sudo apt install python3 -y
+          apt install python3 -y
           python3
           pip install --upgrade pip
           pip install -r requirements.txt
