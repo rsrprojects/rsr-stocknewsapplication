@@ -5,6 +5,9 @@ pipeline {
         args '--user root'
     }
   }
+  options {
+    cleanWs()
+  }
   environment {
     API_KEY = credentials('NEWS_API_KEY')
     DOCKER_REGISTRY = 'rsrprojects'
@@ -83,7 +86,29 @@ pipeline {
     //     }
     //   }
     // }
+    
+    options {
+      cleanWs()
+    }
 
+    stage('checkout') {
+      agent any
+      steps {
+          checkout scm
+      }
+    }  
+
+    stage('Prepare Environment') {
+      agent any
+      steps {
+        sh '''
+          echo "NEWS_API_KEY=${API_KEY}" > .env
+          echo "Debug: Content of .env file"
+          cat .env
+        '''
+      }
+    }
+    
     stage('build') {
       agent any
       steps {
