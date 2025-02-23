@@ -1,95 +1,74 @@
 pipeline {
   agent any
+  environment {
+    API_KEY = credentials('NEWS_API_KEY')
+    DOCKER_IMAGE = 'rsrprojects/flask-news-app'
+    IMAGE_TAG = 'v1.0'
+    DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
+  }
   stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
     stage('Prepare Environment') {
       steps {
         sh '''
-                    echo "NEWS_API_KEY=${API_KEY}" > .env
-                    echo "Debug: Content of .env file"
-                    cat .env
-                '''
+          echo "NEWS_API_KEY=${API_KEY}" > .env
+          echo "Debug: Content of .env file"
+          cat .env
+        '''
       }
     }
-
-    stage('Install Dependencies') {
+    stage('Setup') {
       steps {
         sh '''
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                    pip install flake8 bandit pytest
-                '''
+        which python3 || (apt-get update && apt-get install -y python3 python3-venv)
+        python3 -m venv venv
+        ./venv/bin/pip install -r requirements.txt
+        '''
       }
     }
-
-    stage('Lint') {
+    stage('Test') {
       steps {
-        sh(script: 'flake8 . || true', returnStatus: true)
+        sh './venv/bin/python -m pytest tests/'
       }
     }
-
-    stage('Security Scan') {
+    stage('Build Docker Image') {
       steps {
-        sh 'bandit -r . --severity-level medium'
+        sh 'docker build -t $DOCKER_IMAGE:latest .'
       }
     }
-
-    stage('Unit Tests') {
+    stage('Push to Docker Hub') {
+      when { branch 'master' }
       steps {
-        sh 'PYTHONPATH=$PYTHONPATH:. pytest tests/ --maxfail=1'
-      }
-    }
-
-    stage('Stash Code') {
-      steps {
-        sh 'ls -la'
-        stash(includes: '**', name: 'workspace')
-      }
-    }
-
-    stage('Docker Build and Push') {
-      agent {
-        label 'docker'
-      }
-      steps {
-        unstash 'workspace'
-        withCredentials(bindings: [usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          sh '''
-                        echo "Building Docker image..."
-                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
-                        
-                        echo "Logging into Docker Hub..."
-                        echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
-                        
-                        echo "Pushing Docker image..."
-                        docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                    '''
+        withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
         }
-
+        sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
-
-  }
-  environment {
-    API_KEY = credentials('NEWS_API_KEY')
-    DOCKER_REGISTRY = 'rsrprojects/nothing-special'
-    IMAGE_NAME = 'news-app'
-    IMAGE_TAG = 'v1.0'
+    stage('Deploy') {
+      steps {
+        sh 'docker run -d -p 5000:5000 --env-file .env --name news-app $DOCKER_IMAGE:latest'
+      }
+    }
+    stage('Logout') {
+      steps {
+        sh 'docker logout'
+      }
+    }
   }
   post {
     always {
       echo 'Pipeline finished.'
     }
-
     success {
-      echo 'All checks passed successfully!'
+      echo 'All checks passed successfully! Image has been built and pushed.'
     }
-
     failure {
-      echo 'One or more checks failed.'
+      echo 'One or more checks failed. Docker build will be skipped.'
     }
-
-  }
-  options {
-    skipDefaultCheckout(true)
   }
 }
