@@ -41,7 +41,7 @@ pipeline {
       }
     }
     stage('Push to Docker Hub') {
-      when { branch 'main' }
+      when { branch 'master' }
       steps {
         withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
