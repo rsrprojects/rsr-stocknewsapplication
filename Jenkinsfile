@@ -51,7 +51,7 @@ pipeline {
     }
     stage('Deploy') {
       steps {
-        sh 'docker run -d --rm -p 5000:5000 --env-file .env --name news-app $DOCKER_IMAGE:latest'
+        sh 'docker run -d -p 5000:5000 --env-file .env --name news-app $DOCKER_IMAGE:latest'
       }
     }
     stage('Logout') {
