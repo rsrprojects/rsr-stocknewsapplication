@@ -1,7 +1,6 @@
 pipeline {
   agent any
   environment {
-    DOCKER_HOST = 'tcp://docker-in-docker:2375'
     API_KEY = credentials('NEWS_API_KEY')
     DOCKER_IMAGE = 'rsrprojects/flask-news-app'
     IMAGE_TAG = 'v1.0'
@@ -33,7 +32,7 @@ pipeline {
     }
     stage('Test') {
       steps {
-        sh './venv/bin/python -m unittest discover tests'
+        sh './venv/bin/python -m pytest tests/'
       }
     }
     stage('Build Docker Image') {
