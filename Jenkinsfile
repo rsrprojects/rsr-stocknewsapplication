@@ -24,8 +24,11 @@ pipeline {
     }
     stage('Setup') {
       steps {
-        sh 'python3 -m venv venv'
-        sh './venv/bin/pip install -r requirements.txt'
+        sh '''
+        which python3 || (apt-get update && apt-get install -y python3 python3-venv)
+        python3 -m venv venv
+        ./venv/bin/pip install -r requirements.txt
+        '''
       }
     }
     stage('Test') {
