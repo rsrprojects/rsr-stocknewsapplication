@@ -51,8 +51,7 @@ pipeline {
     }
     stage('Deploy') {
       steps {
-        sh 'docker network connect jenkins flask-news-app || true' // Ensure correct networking
-        sh 'docker run -d --rm --network jenkins -p 5000:5000 --env-file .env --name news-app $DOCKER_IMAGE:latest'
+        sh 'docker run -d --rm -p 5000:5000 --env-file .env --name news-app $DOCKER_IMAGE:latest'
       }
     }
     stage('Logout') {
