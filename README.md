@@ -54,4 +54,14 @@ Links to the CI part tools that was used:
    # This is the Lint part of the workflow of the CI and this tool is using the pricipal of pep8 to maintain python community standards for consistency
 
 2- 
+
+
+
+### To run the container on the machine this is the command
+'''
+docker run -p 5000:5000 \
+ -e FLASK_APP=app.main \
+ -e FLASK_ENV=development \
+ rsrprojects/flask-news-app:v1.0
+'''
    
