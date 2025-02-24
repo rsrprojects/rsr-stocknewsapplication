@@ -37,7 +37,7 @@ pipeline {
     }
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t $DOCKER_IMAGE:latest .'
+        sh 'docker build -t $DOCKER_IMAGE:$IMAGE_TAG .'
       }
     }
     stage('Push to Docker Hub') {
