@@ -58,9 +58,9 @@ Links to the CI part tools that was used:
 
 
 ### To run the container on the machine this is the command
-
+'''bash
 docker run -p 5000:5000 \
  -e FLASK_APP=app.main \
  -e FLASK_ENV=development \
  rsrprojects/flask-news-app:v1.0
-
+'''
