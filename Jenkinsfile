@@ -40,7 +40,7 @@ pipeline {
         sh 'docker build -t $DOCKER_IMAGE:$IMAGE_TAG .'
       }
     }
-    stage('Push to Docker Hub') {
+    stage('Connect to DockerHub') {
       when { branch 'master' }
       steps {
         withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
