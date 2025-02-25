@@ -83,10 +83,10 @@ pipeline {
   }
   post {
     always {
-      sh '''
-        docker stop news-app || true
-        docker rm news-app || true
-      '''
+      // sh '''
+      //   docker stop news-app || true
+      //   docker rm news-app || true
+      // '''
       echo 'Pipeline finished.'
     }
     success {
