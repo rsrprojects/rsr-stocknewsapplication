@@ -52,13 +52,11 @@ pipeline {
       steps {
         sh '''
         docker rm -f news-app || true
-        docker run -d -p 5000:5000 --env-file .env --name news-app $DOCKER_IMAGE:$IMAGE_TAG
+        docker run -p 5000:5000 \
+           -e FLASK_APP=app.main \
+           -e FLASK_ENV=development \
+           rsrprojects/flask-news-app:v1.0
         '''
-      }
-    }
-    stage('Push image to dockerhub') {
-      steps {
-        sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
     stage('Test Application Deployment') {
@@ -73,6 +71,11 @@ pipeline {
              echo "Deployment Test Passed!"
           }
         }
+      }
+    }
+    stage('Push image to dockerhub') {
+      steps {
+        sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
     stage('Logout') {
