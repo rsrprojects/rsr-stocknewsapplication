@@ -3,7 +3,7 @@ pipeline {
   environment {
     API_KEY = credentials('NEWS_API_KEY')
     DOCKER_IMAGE = 'rsrprojects/flask-news-app'
-    IMAGE_TAG = 'v1.0'
+    IMAGE_TAG = 'test'
     DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
   }
   stages {
@@ -41,43 +41,22 @@ pipeline {
       }
     }
     stage('Connect to DockerHub') {
-      when { branch 'master' }
+      when { branch 'testing-Jenkins-GPT' }
       steps {
         withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
         }
       }
     }
-    stage('Deploy') {
-      steps {
-        sh '''
-          docker rm -f news-app || true
-          docker run -d -p 5000:5000 \
-             -e FLASK_APP=app.main \
-             -e FLASK_ENV=development \
-             -e FLASK_RUN_HOST=0.0.0.0 \
-             --name news-app \
-             rsrprojects/flask-news-app:v1.0
-        '''
-      }
-    }
-    stage('Test Application Deployment') {
-      steps {
-        script {
-          sleep(time: 10, unit: 'SECONDS')
-          def response = sh(script: 'curl -s http://localhost:5000', returnStdout: true)
-          if (!response.contains('Expected Keyword')) {
-            error("Deployment verification failed: expected content not found.")
-          } 
-          else {
-             echo "Deployment Test Passed!"
-          }
-        }
-      }
-    }
     stage('Push image to dockerhub') {
+      when { branch 'testing-Jenkins-GPT' }
       steps {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
+      }
+    }
+    stage('Checkout Terraform') {
+      steps {
+        
       }
     }
     stage('Logout') {
@@ -89,8 +68,7 @@ pipeline {
   post {
     always {
       sh '''
-        docker stop news-app || true
-        docker rm news-app || true
+        docker image rm $DOCKER_IMAGE:$IMAGE_TAG || true
       '''
       echo 'Pipeline finished.'
     }
