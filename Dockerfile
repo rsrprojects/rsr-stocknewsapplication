@@ -17,7 +17,8 @@ COPY . .
 EXPOSE 5000
 
 # Set flask app location
-ENV FLASK_APP=main.py
+ENV FLASK_APP=app.main
+ENV FLASK_ENV=development
 
 # Run the application
 CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"] 
