@@ -46,12 +46,33 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
         }
-        sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
     stage('Deploy') {
       steps {
-        sh 'docker run -d -p 5000:5000 --env-file .env --name news-app $DOCKER_IMAGE:latest'
+        sh '''
+        docker rm -f news-app || true
+        docker run -d -p 5000:5000 --env-file .env --name news-app $DOCKER_IMAGE:$IMAGE_TAG
+        '''
+      }
+    }
+    stage('Push image to dockerhub') {
+      steps {
+        sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
+      }
+    }
+    stage('Test Application Deployment') {
+      steps {
+        script {
+          sleep(time: 10, unit: 'SECONDS')
+          def response = sh(script: 'curl -s http://localhost:5000', returnStdout: true)
+          if (!response.contains('Expected Keyword')) {
+            error("Deployment verification failed: expected content not found.")
+          } 
+          else {
+             echo "Deployment Test Passed!"
+          }
+        }
       }
     }
     stage('Logout') {
@@ -62,6 +83,10 @@ pipeline {
   }
   post {
     always {
+      sh '''
+        docker stop news-app || true
+        docker rm news-app || true
+      '''
       echo 'Pipeline finished.'
     }
     success {
