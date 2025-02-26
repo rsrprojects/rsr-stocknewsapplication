@@ -76,21 +76,21 @@ pipeline {
           userRemoteConfigs: [[url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git']])
       }
     }
-    stage('Install Terraform') {
-      steps {
-        sh '''
-          sudo apt-get install terraform -y
-          terraform --version || true
-        '''
-      }
-    }
-    stage('Terraform Plan') {
-      steps {
-        sh '''
-          terraform plan
-        '''
-      }
-    }
+    // stage('Install Terraform') {
+    //   steps {
+    //     sh '''
+    //       sudo apt-get install terraform -y
+    //       terraform --version || true
+    //     '''
+    //   }
+    // }
+    // stage('Terraform Plan') {
+    //   steps {
+    //     sh '''
+    //       terraform plan
+    //     '''
+    //   }
+    // }
   }
   post {
     always {
