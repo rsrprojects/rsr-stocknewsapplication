@@ -58,8 +58,10 @@ pipeline {
         checkout([
             $class: 'GitSCM',
             branches: [[name: "${TERRAFORM_REPO_BRANCH}"]],
-            userRemoteConfigs: [[url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git']]
-            credentialsId: 'GITHUB_API_KEY' 
+            userRemoteConfigs: [[
+              url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git'
+              credentialsId: 'GITHUB_API_KEY'
+            ]]
         ])
       }  
     }
