@@ -59,8 +59,8 @@ pipeline {
             $class: 'GitSCM',
             branches: [[name: "${TERRAFORM_REPO_BRANCH}"]],
             userRemoteConfigs: [[
-              url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git'
-              credentialsId: 'GITHUB_API_KEY'
+                url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git',
+                credentialsId: 'GITHUB_API_KEY'
             ]]
         ])
       }  
