@@ -54,33 +54,31 @@ pipeline {
       }
     }
     stage('Pull The App And Test It') {
-      agent {
-        docker {
-          image '$DOCKER_IMAGE:$IMAGE_TAG'
-          args '''
-            -p 5000:5000
-            -e FLASK_APP=app.main
-            -e FLASK_ENV=development
-            --rm
-          '''
-        }
-        steps {
-          sh 'curl http://localhost:5000'
+      steps {
+        script {
+          docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").inside('--rm -p 5000:5000 -e FLASK_APP=app.main -e FLASK_ENV=development') {
+              sh 'sleep 5' // Give Flask time to start
+              sh 'curl http://localhost:5000'
+          }
         }
       }
     }
     stage('Checkout Terraform') {
       steps {
-        checkout scmGit(
-          branches: [[name: $TERRAFORM_REPO_BRANCH]],
-          userRemoteConfigs: [[url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git']])
-      }
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: "${TERRAFORM_REPO_BRANCH}"]],
+            userRemoteConfigs: [[url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git']]
+        ])
+      }  
     }
     // stage('Install Terraform') {
     //   steps {
     //     sh '''
-    //       sudo apt-get install terraform -y
-    //       terraform --version || true
+    //       curl -fsSL https://apt.releases.hashicorp.com/gpg | tee /etc/apt/trusted.gpg.d/hashicorp.asc
+    //       echo "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+    //       apt-get update && apt-get install -y terraform
+    //       terraform --version
     //     '''
     //   }
     // }
@@ -96,7 +94,7 @@ pipeline {
     always {
       sh '''
         docker logout
-        docker image rm $DOCKER_IMAGE:$IMAGE_TAG || true
+        docker image rm "${DOCKER_IMAGE}:${IMAGE_TAG}" || true
       '''
       echo 'Pipeline finished.'
     }
