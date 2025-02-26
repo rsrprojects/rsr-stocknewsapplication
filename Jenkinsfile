@@ -54,13 +54,10 @@ pipeline {
       }
     }
     stage('Pull The App And Test It') {
+      agent { docker "${DOCKER_IMAGE}:${IMAGE_TAG}" }
       steps {
-        script {
-          docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").inside('--rm -p 5000:5000 -e FLASK_APP=app.main -e FLASK_ENV=development') {
-              sh 'sleep 5' // Give Flask time to start
-              sh 'curl http://localhost:5000'
-          }
-        }
+        sh 'sleep 5' // Give Flask time to start
+        sh 'curl http://localhost:5000'
       }
     }
     stage('Checkout Terraform') {
