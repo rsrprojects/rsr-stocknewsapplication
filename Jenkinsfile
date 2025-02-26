@@ -55,15 +55,24 @@ pipeline {
     }
     stage('Checkout Terraform') {
       steps {
-        checkout([
-            $class: 'GitSCM',
-            branches: [[name: "${TERRAFORM_REPO_BRANCH}"]],
-            userRemoteConfigs: [[
-                url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git',
-                credentialsId: 'GITHUB_API_KEY'
-            ]]
-        ])
-        sh 'ls -la'
+        script {
+          def terraformDir = 'terraform_workspace'
+          
+          sh "mkdir -p ${terraformDir}"
+          
+          dir(terraformDir) {
+              checkout([
+                  $class: 'GitSCM',
+                  branches: [[name: "${TERRAFORM_REPO_BRANCH}"]],
+                  userRemoteConfigs: [[
+                      url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git',
+                      credentialsId: 'GITHUB_API_KEY'
+                  ]]
+              ])
+              
+              sh 'ls -la'  // Verify files are checked out
+          }
+        }
       }  
     }
     stage('Install Terraform') {
