@@ -56,6 +56,7 @@ pipeline {
     stage('Pull The App And Test It') {
       agent { docker "${DOCKER_IMAGE}:${IMAGE_TAG}" }
       steps {
+        sh 'apt-get update && apt-get install -y curl'
         sh 'sleep 5' // Give Flask time to start
         sh 'curl http://localhost:5000'
       }
