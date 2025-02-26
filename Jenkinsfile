@@ -63,6 +63,7 @@ pipeline {
                 credentialsId: 'GITHUB_API_KEY'
             ]]
         ])
+        sh 'la -la'
       }  
     }
     stage('Install Terraform') {
