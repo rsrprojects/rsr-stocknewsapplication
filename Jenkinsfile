@@ -5,6 +5,7 @@ pipeline {
     DOCKER_IMAGE = 'rsrprojects/flask-news-app'
     IMAGE_TAG = 'test'
     DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
+    TERRAFORM_REPO_BRANCH = 'main'
   }
   stages {
     stage('Checkout') {
@@ -41,7 +42,6 @@ pipeline {
       }
     }
     stage('Connect to DockerHub') {
-      when { branch 'testing-Jenkins-GPT' }
       steps {
         withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
@@ -49,25 +49,53 @@ pipeline {
       }
     }
     stage('Push image to dockerhub') {
-      when { branch 'testing-Jenkins-GPT' }
       steps {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
-    stage('Checkout Terraform') {
-      steps {
-        
+    stage('Pull The App And Test It') {
+      agent {
+        docker {
+          image '$DOCKER_IMAGE:$IMAGE_TAG'
+          args '''
+            -p 5000:5000
+            -e FLASK_APP=app.main
+            -e FLASK_ENV=development
+            --rm
+          '''
+        }
+        steps {
+          sh 'curl http://localhost:5000'
+        }
       }
     }
-    stage('Logout') {
+    stage('Checkout Terraform') {
       steps {
-        sh 'docker logout'
+        checkout scmGit(
+          branches: [[name: $TERRAFORM_REPO_BRANCH]],
+          userRemoteConfigs: [[url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git']])
+      }
+    }
+    stage('Install Terraform') {
+      steps {
+        sh '''
+          sudo apt-get install terraform -y
+          terraform --version || true
+        '''
+      }
+    }
+    stage('Terraform Plan') {
+      steps {
+        sh '''
+          terraform plan
+        '''
       }
     }
   }
   post {
     always {
       sh '''
+        docker logout
         docker image rm $DOCKER_IMAGE:$IMAGE_TAG || true
       '''
       echo 'Pipeline finished.'
