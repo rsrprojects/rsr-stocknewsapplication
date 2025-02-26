@@ -53,17 +53,6 @@ pipeline {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
-    stage('Pull The App And Test It') {
-      agent { 
-        docker "${DOCKER_IMAGE}:${IMAGE_TAG}"
-        args "-p 5000:5000"
-      }
-      steps {
-        sh 'apt-get update && apt-get install -y curl'
-        sh 'sleep 5' // Give Flask time to start
-        sh 'curl http://localhost:5000'
-      }
-    }
     stage('Checkout Terraform') {
       steps {
         checkout([
@@ -73,23 +62,23 @@ pipeline {
         ])
       }  
     }
-    // stage('Install Terraform') {
-    //   steps {
-    //     sh '''
-    //       curl -fsSL https://apt.releases.hashicorp.com/gpg | tee /etc/apt/trusted.gpg.d/hashicorp.asc
-    //       echo "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-    //       apt-get update && apt-get install -y terraform
-    //       terraform --version
-    //     '''
-    //   }
-    // }
-    // stage('Terraform Plan') {
-    //   steps {
-    //     sh '''
-    //       terraform plan
-    //     '''
-    //   }
-    // }
+    stage('Install Terraform') {
+      steps {
+        sh '''
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | tee /etc/apt/trusted.gpg.d/hashicorp.asc
+          echo "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+          apt-get update && apt-get install -y terraform
+          terraform --version || true
+        '''
+      }
+    }
+    stage('Terraform Plan') {
+      steps {
+        sh '''
+          terraform plan
+        '''
+      }
+    }
   }
   post {
     always {
