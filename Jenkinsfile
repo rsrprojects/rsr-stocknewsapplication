@@ -5,7 +5,7 @@ pipeline {
     DOCKER_IMAGE = 'rsrprojects/flask-news-app'
     IMAGE_TAG = 'test'
     DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
-    TERRAFORM_REPO_BRANCH = 'main'
+    TERRAFORM_REPO_BRANCH = 'testing-tf'
   }
   stages {
     stage('Checkout') {
