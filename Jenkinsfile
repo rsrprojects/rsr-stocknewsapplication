@@ -88,6 +88,7 @@ pipeline {
     stage('Terraform Init and Plan') {
       steps {
         sh '''
+          ls -la
           terraform init
           terraform plan
         '''
