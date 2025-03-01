@@ -53,49 +53,49 @@ pipeline {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
-    stage('Checkout Terraform') {
-      steps {
-        script {
-          def terraformDir = 'terraform_workspace'
+    // stage('Checkout Terraform') {
+    //   steps {
+    //     script {
+    //       def terraformDir = 'terraform_workspace'
           
-          sh "mkdir -p ${terraformDir}"
+    //       sh "mkdir -p ${terraformDir}"
           
-          dir(terraformDir) {
-              checkout([
-                  $class: 'GitSCM',
-                  branches: [[name: "${TERRAFORM_REPO_BRANCH}"]],
-                  userRemoteConfigs: [[
-                      url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git',
-                      credentialsId: 'GITHUB_API_KEY'
-                  ]]
-              ])
+    //       dir(terraformDir) {
+    //           checkout([
+    //               $class: 'GitSCM',
+    //               branches: [[name: "${TERRAFORM_REPO_BRANCH}"]],
+    //               userRemoteConfigs: [[
+    //                   url: 'https://github.com/rsrprojects/rsr-stocknewsapplication-terraform-.git',
+    //                   credentialsId: 'GITHUB_API_KEY'
+    //               ]]
+    //           ])
               
-              sh 'ls -la'  // Verify files are checked out
-          }
-        }
-      }  
-    }
-    stage('Install Terraform') {
-      steps {
-        sh '''
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | tee /etc/apt/trusted.gpg.d/hashicorp.asc
-          echo "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-          apt-get update && apt-get install -y terraform
-          terraform --version || true
-        '''
-      }
-    }
-    stage('Terraform Init and Plan') {
-      steps {
-        dir('terraform_workspace') {
-          sh '''
-            ls -la
-            terraform init
-            terraform plan
-          '''
-        }
-      }
-    }
+    //           sh 'ls -la'  // Verify files are checked out
+    //       }
+    //     }
+    //   }  
+    // }
+    // stage('Install Terraform') {
+    //   steps {
+    //     sh '''
+    //       curl -fsSL https://apt.releases.hashicorp.com/gpg | tee /etc/apt/trusted.gpg.d/hashicorp.asc
+    //       echo "deb [signed-by=/etc/apt/trusted.gpg.d/hashicorp.asc] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+    //       apt-get update && apt-get install -y terraform
+    //       terraform --version || true
+    //     '''
+    //   }
+    // }
+    // stage('Terraform Init and Plan') {
+    //   steps {
+    //     dir('terraform_workspace') {
+    //       sh '''
+    //         ls -la
+    //         terraform init
+    //         terraform plan
+    //       '''
+    //     }
+    //   }
+    // }
   }
   post {
     always {
