@@ -65,7 +65,9 @@ pipeline {
     stage('Terraform Plan & Apply') {
       steps {
         sh '''
+        export TF_API_TOKEN=${TF_API_TOKEN}
         cd terraform
+        ls -la
         terraform plan -out=tfplan
         terraform apply -auto-approve tfplan
         '''
@@ -74,11 +76,11 @@ pipeline {
     stage('Wait for EC2 & Run Tests') {
       steps {
         script {
-          sleep(time: 120, unit: 'SECONDS')
+          sleep(time: 180, unit: 'SECONDS')
           sh '''
           EC2_IP=$(terraform output -raw ec2_public_ip)
           echo "EC2 Public IP: $EC2_IP"
-          curl -f http://$EC2_IP:5000 || exit 1
+          curl -f http://$EC2_IP:5000/health || exit 1
           '''
         }
       }
@@ -89,6 +91,8 @@ pipeline {
       }
       steps {
         sh '''
+        export TF_API_TOKEN=${TF_API_TOKEN}
+        cd terraform
         terraform destroy -auto-approve
         '''
       }
