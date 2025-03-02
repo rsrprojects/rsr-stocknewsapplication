@@ -57,7 +57,9 @@ pipeline {
     stage('Terraform Init') {
       steps {
         sh '''
+        export TF_API_TOKEN=${TF_API_TOKEN}
         cd terraform
+        ls -la
         terraform init
         '''
       }
