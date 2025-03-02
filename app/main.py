@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from .news_scraper import get_magnificent_seven_news
 
 
@@ -11,5 +11,10 @@ def index():
     return render_template('index.html', news_items=news_items)
 
 
+@app.route('/health')
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
+
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)
