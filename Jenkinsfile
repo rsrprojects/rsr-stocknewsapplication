@@ -58,18 +58,25 @@ pipeline {
     stage('Trigger Terraform Plan in Terraform Cloud') {
       steps {
         sh '''
-          curl -X POST https://app.terraform.io/api/v2/runs \
-          -H "Authorization: Bearer ${TF_API_TOKEN}" \
-          -H "Content-Type: application/vnd.api+json" \
-          --data '{
-            "data": {
-              "attributes": {
-                "message": "Triggered by Jenkins",
-                "workspace-id": "'${WORKSPACE_ID}'",
-                "auto-apply": true
+        curl -X POST https://app.terraform.io/api/v2/runs \
+        -H "Authorization: Bearer ${TF_API_TOKEN}" \
+        -H "Content-Type: application/vnd.api+json" \
+        --data '{
+          "data": {
+            "attributes": {
+              "message": "Triggered by Jenkins",
+              "auto-apply": true
+            },
+            "relationships": {
+              "workspace": {
+                "data": {
+                  "type": "workspaces",
+                  "id": "'${WORKSPACE_ID}'"
+                }
               }
             }
-          }'
+          }
+        }'
         '''
       }
     }
@@ -98,9 +105,16 @@ pipeline {
           "data": {
             "attributes": {
               "message": "Terraform Destroy Triggered by Jenkins",
-              "workspace-id": "'${WORKSPACE_ID}'",
               "is-destroy": true,
               "auto-apply": false
+            },
+            "relationships": {
+              "workspace": {
+                "data": {
+                  "type": "workspaces",
+                  "id": "'${WORKSPACE_ID}'"
+                }
+              }
             }
           }
         }'
