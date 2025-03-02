@@ -57,22 +57,34 @@ pipeline {
     stage('Terraform Init') {
       steps {
         sh '''
-        export TF_API_TOKEN=${TF_API_TOKEN}
         cd terraform
         ls -la
-        terraform init
         '''
+        withTerraform(toolVersion: 'Terraform') {
+          terraformInit()
+        }
       }
     }
-    stage('Terraform Plan & Apply') {
+    stage('Terraform Plan') {
       steps {
         sh '''
-        export TF_API_TOKEN=${TF_API_TOKEN}
         cd terraform
         ls -la
-        terraform plan -out=tfplan
-        terraform apply -auto-approve tfplan
         '''
+        withTerraform(toolVersion: 'Terraform') {
+          terraformPlan()
+        }
+      }
+    }
+    stage('Terraform Apply') {
+      steps {
+        sh '''
+          cd terraform
+          ls -la
+        '''
+        withTerraform(toolVersion: 'Terraform') {
+          terraformApply()
+        }
       }
     }
     stage('Wait for EC2 & Run Tests') {
