@@ -7,6 +7,7 @@ pipeline {
     DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
     // TERRAFORM_REPO_BRANCH = 'testing-tf'
     TF_API_TOKEN = credentials('TERRAFORM_CLOUD_API')
+    WORKSPACE_ID = 'ws-sbPFYMrFfwvtFurY'
   }
   stages {
     stage('Checkout') {
@@ -54,37 +55,22 @@ pipeline {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
-    stage('Terraform Init') {
+    stage('Trigger Terraform Plan in Terraform Cloud') {
       steps {
         sh '''
-        cd terraform
-        ls -la
+          curl -X POST https://app.terraform.io/api/v2/runs \
+          -H "Authorization: Bearer ${TF_API_TOKEN}" \
+          -H "Content-Type: application/vnd.api+json" \
+          --data '{
+            "data": {
+              "attributes": {
+                "message": "Triggered by Jenkins",
+                "workspace-id": "'${WORKSPACE_ID}'",
+                "auto-apply": true
+              }
+            }
+          }'
         '''
-        withTerraform(toolVersion: 'Terraform') {
-          terraformInit()
-        }
-      }
-    }
-    stage('Terraform Plan') {
-      steps {
-        sh '''
-        cd terraform
-        ls -la
-        '''
-        withTerraform(toolVersion: 'Terraform') {
-          terraformPlan()
-        }
-      }
-    }
-    stage('Terraform Apply') {
-      steps {
-        sh '''
-          cd terraform
-          ls -la
-        '''
-        withTerraform(toolVersion: 'Terraform') {
-          terraformApply()
-        }
       }
     }
     stage('Wait for EC2 & Run Tests') {
@@ -99,15 +85,25 @@ pipeline {
         }
       }
     }
-    stage('Destroy EC2 After Test') {
+    stage('Trigger Terraform Destroy in Terraform Cloud') {
       when {
         expression { return currentBuild.result == 'SUCCESS' }
       }
       steps {
         sh '''
-        export TF_API_TOKEN=${TF_API_TOKEN}
-        cd terraform
-        terraform destroy -auto-approve
+        curl -X POST https://app.terraform.io/api/v2/runs \
+        -H "Authorization: Bearer ${TF_API_TOKEN}" \
+        -H "Content-Type: application/vnd.api+json" \
+        --data '{
+          "data": {
+            "attributes": {
+              "message": "Terraform Destroy Triggered by Jenkins",
+              "workspace-id": "'${WORKSPACE_ID}'",
+              "is-destroy": true,
+              "auto-apply": false
+            }
+          }
+        }'
         '''
       }
     }
