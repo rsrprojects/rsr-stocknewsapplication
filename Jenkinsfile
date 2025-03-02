@@ -85,9 +85,16 @@ pipeline {
         script {
           sleep(time: 180, unit: 'SECONDS')
           sh '''
-          EC2_IP=$(terraform output -raw ec2_public_ip)
+          EC2_IP=$(terraform output ec2_public_ip 2>/dev/null || echo "UNKNOWN")
           echo "EC2 Public IP: $EC2_IP"
-          curl -f http://$EC2_IP:5000/health || exit 1
+
+          if [ "$EC2_IP" != "UNKNOWN" ]; then
+            echo "Running Health Check..."
+            curl -f http://$EC2_IP:5000/health || exit 1
+          else
+            echo "EC2 IP not found! Check Terraform Outputs."
+            exit 1
+          fi
           '''
         }
       }
