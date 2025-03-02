@@ -1,0 +1,31 @@
+# Ignore Terraform files
+terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+
+# Ignore Jenkins pipeline files
+Jenkinsfile
+
+# Ignore Git-related files
+.git/
+.gitignore
+
+# Ignore log files and temporary files
+*.log
+*.tmp
+*.swp
+
+# Ignore Python virtual environments
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Docker-related files
+.dockerignore
+Dockerfile
+
+# Ignore system files
+.DS_Store
+Thumbs.db
