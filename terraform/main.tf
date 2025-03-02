@@ -2,7 +2,7 @@ terraform {
   backend "remote" {
     organization = "rsr-projects"
     workspaces {
-      name = "rsr-stocknewsapplication"
+      name = "testing-jenkins-gpt"
     }
     
   }
@@ -19,7 +19,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "app_server" {
-  ami           = "ami-0c55b159cbfafe1f0" # Ubuntu 20.04
+  ami           = "ami-03fd334507439f4d1" # Ubuntu 24.04
   instance_type = "t2.micro"
   key_name = "rsrkey"
   security_groups = [aws_security_group.rsr-sg.name]
