@@ -85,7 +85,11 @@ pipeline {
         script {
           sleep(time: 180, unit: 'SECONDS')
           sh '''
-          EC2_IP=$(terraform output ec2_public_ip 2>/dev/null || echo "UNKNOWN")
+          EC2_IP=EC2_IP=$(curl -s --request GET \
+            --url "https://app.terraform.io/api/v2/workspaces/${WORKSPACE_ID}/current-state-version" \
+            --header "Authorization: Bearer ${TF_API_TOKEN}" \
+            --header "Content-Type: application/vnd.api+json" | jq -r '.data.attributes.outputs.ec2_public_ip.value')
+            
           echo "EC2 Public IP: $EC2_IP"
 
           if [ "$EC2_IP" != "UNKNOWN" ]; then
