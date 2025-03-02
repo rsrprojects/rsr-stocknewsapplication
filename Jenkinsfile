@@ -54,21 +54,20 @@ pipeline {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
-    stage('Trigger Terraform Apply') {
+    stage('Terraform Init') {
       steps {
         sh '''
-        curl -X POST https://app.terraform.io/api/v2/runs \
-        -H "Authorization: Bearer ${TF_API_TOKEN}" \
-        -H "Content-Type: application/vnd.api+json" \
-        --data '{
-          "data": {
-            "attributes": {
-              "message": "Trigger Terraform Apply via Jenkins",
-              "workspace-id": "your-terraform-workspace-id",
-              "auto-apply": true
-            }
-          }
-        }'
+        cd terraform
+        terraform init
+        '''
+      }
+    }
+    stage('Terraform Plan & Apply') {
+      steps {
+        sh '''
+        cd terraform
+        terraform plan -out=tfplan
+        terraform apply -auto-approve tfplan
         '''
       }
     }
@@ -84,24 +83,13 @@ pipeline {
         }
       }
     }
-    stage('Destroy EC2 Instance') {
+    stage('Destroy EC2 After Test') {
       when {
         expression { return currentBuild.result == 'SUCCESS' }
       }
       steps {
         sh '''
-        curl -X POST https://app.terraform.io/api/v2/runs \
-        -H "Authorization: Bearer ${TF_API_TOKEN}" \
-        -H "Content-Type: application/vnd.api+json" \
-        --data '{
-          "data": {
-            "attributes": {
-              "message": "Trigger Terraform Destroy via Jenkins",
-              "workspace-id": "your-terraform-workspace-id",
-              "is-destroy": true
-            }
-          }
-        }'
+        terraform destroy -auto-approve
         '''
       }
     }
