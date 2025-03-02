@@ -5,7 +5,8 @@ pipeline {
     DOCKER_IMAGE = 'rsrprojects/flask-news-app'
     IMAGE_TAG = 'test'
     DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
-    TERRAFORM_REPO_BRANCH = 'testing-tf'
+    // TERRAFORM_REPO_BRANCH = 'testing-tf'
+    TF_API_TOKEN = credentials('TERRAFORM_CLOUD_API')
   }
   stages {
     stage('Checkout') {
@@ -51,6 +52,57 @@ pipeline {
     stage('Push image to dockerhub') {
       steps {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
+      }
+    }
+    stage('Trigger Terraform Apply') {
+      steps {
+        sh '''
+        curl -X POST https://app.terraform.io/api/v2/runs \
+        -H "Authorization: Bearer ${TF_API_TOKEN}" \
+        -H "Content-Type: application/vnd.api+json" \
+        --data '{
+          "data": {
+            "attributes": {
+              "message": "Trigger Terraform Apply via Jenkins",
+              "workspace-id": "your-terraform-workspace-id",
+              "auto-apply": true
+            }
+          }
+        }'
+        '''
+      }
+    }
+    stage('Wait for EC2 & Run Tests') {
+      steps {
+        script {
+          sleep(time: 120, unit: 'SECONDS')
+          sh '''
+          EC2_IP=$(terraform output -raw ec2_public_ip)
+          echo "EC2 Public IP: $EC2_IP"
+          curl -f http://$EC2_IP:5000 || exit 1
+          '''
+        }
+      }
+    }
+    stage('Destroy EC2 Instance') {
+      when {
+        expression { return currentBuild.result == 'SUCCESS' }
+      }
+      steps {
+        sh '''
+        curl -X POST https://app.terraform.io/api/v2/runs \
+        -H "Authorization: Bearer ${TF_API_TOKEN}" \
+        -H "Content-Type: application/vnd.api+json" \
+        --data '{
+          "data": {
+            "attributes": {
+              "message": "Trigger Terraform Destroy via Jenkins",
+              "workspace-id": "your-terraform-workspace-id",
+              "is-destroy": true
+            }
+          }
+        }'
+        '''
       }
     }
     // stage('Checkout Terraform') {
