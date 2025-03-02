@@ -90,20 +90,29 @@ pipeline {
         script {
           sleep(time: 180, unit: 'SECONDS')
           sh '''
-          EC2_IP=$(curl -s --request GET \
+          echo "Fetching State Version ID from Terraform Cloud..."
+          STATE_VERSION_ID=$(curl -s --request GET \
             --url "https://app.terraform.io/api/v2/workspaces/${WORKSPACE_ID}/current-state-version" \
             --header "Authorization: Bearer ${TF_API_TOKEN}" \
-            --header "Content-Type: application/vnd.api+json" | jq -r '.data.attributes.outputs.ec2_public_ip')
+            --header "Content-Type: application/vnd.api+json" | jq -r '.data.id')
             
-          echo "EC2 Public IP: $EC2_IP"
+          echo "State Version ID: $STATE_VERSION_ID"
 
-          if [ "$EC2_IP" != "UNKNOWN" ]; then
-            echo "Running Health Check..."
-            curl -f http://$EC2_IP:5000/health || exit 1
-          else
-            echo "EC2 IP not found! Check Terraform Outputs."
+          echo "Fetching EC2 Public IP from Terraform Cloud Outputs..."
+          EC2_IP=$(curl -s --request GET \
+            --url "https://app.terraform.io/api/v2/state-versions/${STATE_VERSION_ID}" \
+            --header "Authorization: Bearer ${TF_API_TOKEN}" \
+            --header "Content-Type: application/vnd.api+json" | jq -r '.data.attributes.outputs.ec2_public_ip.value')
+
+          echo "EC2 Public IP: $EC2_IP"
+          
+          if [ "$EC2_IP" == "null" ] || [ "$EC2_IP" == "" ]; then
+            echo "Error: EC2 IP not found in Terraform Cloud!"
             exit 1
           fi
+
+          echo "Running Health Check..."
+          curl -f http://$EC2_IP:5000/health
           '''
         }
       }
