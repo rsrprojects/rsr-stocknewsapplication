@@ -29,3 +29,7 @@ Dockerfile
 # Ignore system files
 .DS_Store
 Thumbs.db
+
+# Additional files
+README.md
+test1.txt
