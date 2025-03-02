@@ -90,19 +90,19 @@ pipeline {
         script {
           sleep(time: 180, unit: 'SECONDS')
           sh '''
-          echo "Fetching State Version ID from Terraform Cloud..."
-          STATE_VERSION_ID=$(curl -s --request GET \
+          echo "Fetching OUTPUT_URL from Terraform Cloud..."
+          OUTPUTS_URL=$(curl -s --request GET \
             --url "https://app.terraform.io/api/v2/workspaces/${WORKSPACE_ID}/current-state-version" \
             --header "Authorization: Bearer ${TF_API_TOKEN}" \
-            --header "Content-Type: application/vnd.api+json" | jq -r '.data.id')
+            --header "Content-Type: application/vnd.api+json" | jq -r '.relationships.outputs.links.related')
             
-          echo "State Version ID: $STATE_VERSION_ID"
+          echo "OUTPUT_URL: $OUTPUTS_URL"
 
           echo "Fetching EC2 Public IP from Terraform Cloud Outputs..."
           EC2_IP=$(curl -s --request GET \
-            --url "https://app.terraform.io/api/v2/state-versions/${STATE_VERSION_ID}" \
+            --url "https://app.terraform.io$OUTPUTS_URL" \
             --header "Authorization: Bearer ${TF_API_TOKEN}" \
-            --header "Content-Type: application/vnd.api+json" | jq -r '.data.attributes.outputs.ec2_public_ip.value')
+            --header "Content-Type: application/vnd.api+json" | jq -r 'data[].attributes.value')
 
           echo "EC2 Public IP: $EC2_IP"
           
