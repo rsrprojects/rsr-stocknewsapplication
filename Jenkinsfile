@@ -135,7 +135,7 @@ pipeline {
             "attributes": {
               "message": "Terraform Destroy Triggered by Jenkins",
               "is-destroy": true,
-              "auto-apply": false
+              "auto-apply": true
             },
             "relationships": {
               "workspace": {
