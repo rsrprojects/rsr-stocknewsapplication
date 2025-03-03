@@ -112,7 +112,14 @@ pipeline {
           fi
 
           echo "Running Health Check..."
-          curl -f http://$EC2_IP:5000/health
+          for i in {1..5}; do
+            if curl -f http://$EC2_IP:5000/health; then
+              echo "Health check successful!"
+              break
+            fi
+            echo "Retrying health check..."
+            sleep 10
+          done
           '''
         }
       }
