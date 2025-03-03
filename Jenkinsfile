@@ -115,7 +115,6 @@ pipeline {
           for i in {1..5}; do
             if curl -fs http://$EC2_IP:5000 | head -n 5; then
               echo "Health check successful!"
-              currentBuild.result = 'SUCCESS'
               break
             fi
             echo "Retrying health check..."
@@ -126,9 +125,6 @@ pipeline {
       }
     }
     stage('Trigger Terraform Destroy in Terraform Cloud') {
-      when {
-        expression { return currentBuild.result == 'SUCCESS' }
-      }
       steps {
         sh '''
         curl -X POST https://app.terraform.io/api/v2/runs \
