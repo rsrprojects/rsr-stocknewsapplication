@@ -5,9 +5,10 @@ pipeline {
     DOCKER_IMAGE = 'rsrprojects/flask-news-app'
     IMAGE_TAG = 'test'
     DOCKERHUB_CREDS = credentials('DOCKER_CREDENTIALS')
-    // TERRAFORM_REPO_BRANCH = 'testing-tf'
     TF_API_TOKEN = credentials('TERRAFORM_CLOUD_API')
     WORKSPACE_ID = 'ws-sbPFYMrFfwvtFurY'
+    GITHUB_TOKEN = credentials('GITHUB_TOKEN')
+    d_branchName = 'master'
   }
   stages {
     stage('Checkout') {
@@ -148,6 +149,24 @@ pipeline {
           }
         }'
         '''
+      }
+    }
+    stage('Create Pull Request') {
+      steps {
+        script {
+          def branchName = "auto-pr-${BUILD_NUMBER}"
+
+          sh '''
+           which gh || (apt-get update && apt-get install -y gh)
+
+           echo "${GITHUB_TOKEN}" | gh auth login --with-token
+
+           git config --global user.email "jenkins@example.com"
+           git config --global user.name "Jenkins CI"
+
+           git status
+          '''
+        }
       }
     }
   }
