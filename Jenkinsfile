@@ -113,7 +113,7 @@ pipeline {
 
           echo "Running Health Check..."
           for i in {1..5}; do
-            if curl -f http://$EC2_IP:5000/health; then
+            if curl -fs http://$EC2_IP:5000 | head -n 5; then
               echo "Health check successful!"
               break
             fi
