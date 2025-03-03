@@ -94,7 +94,7 @@ pipeline {
           OUTPUTS_URL=$(curl -s --request GET \
             --url "https://app.terraform.io/api/v2/workspaces/${WORKSPACE_ID}/current-state-version" \
             --header "Authorization: Bearer ${TF_API_TOKEN}" \
-            --header "Content-Type: application/vnd.api+json" | jq -r '.relationships.outputs.links.related')
+            --header "Content-Type: application/vnd.api+json" | jq -r '.data.relationships.outputs.links.related')
             
           echo "OUTPUT_URL: $OUTPUTS_URL"
 
@@ -102,7 +102,7 @@ pipeline {
           EC2_IP=$(curl -s --request GET \
             --url "https://app.terraform.io$OUTPUTS_URL" \
             --header "Authorization: Bearer ${TF_API_TOKEN}" \
-            --header "Content-Type: application/vnd.api+json" | jq -r 'data[].attributes.value')
+            --header "Content-Type: application/vnd.api+json" | jq -r '.data.outputs[0].attributes.value')
 
           echo "EC2 Public IP: $EC2_IP"
           
