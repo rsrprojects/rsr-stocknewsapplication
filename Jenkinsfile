@@ -159,8 +159,6 @@ pipeline {
           sh '''
            which gh || (apt-get update && apt-get install -y gh)
 
-           echo "${GITHUB_TOKEN}" | gh auth login --with-token
-
            git config --global user.email "jenkins@example.com"
            git config --global user.name "Jenkins CI"
 
