@@ -102,7 +102,7 @@ pipeline {
           EC2_IP=$(curl -s --request GET \
             --url "https://app.terraform.io$OUTPUTS_URL" \
             --header "Authorization: Bearer ${TF_API_TOKEN}" \
-            --header "Content-Type: application/vnd.api+json" | jq -r '.data.outputs[0].attributes.value')
+            --header "Content-Type: application/vnd.api+json" | jq -r '.data[0].attributes.value')
 
           echo "EC2 Public IP: $EC2_IP"
           
