@@ -3,6 +3,7 @@ terraform/
 terraform.tfstate
 terraform.tfstate.backup
 *.tfvars
+terraform_workspace/
 
 # Ignore Jenkins pipeline files
 Jenkinsfile
@@ -21,6 +22,7 @@ venv/
 __pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
 
 # Ignore Docker-related files
 .dockerignore
@@ -33,3 +35,4 @@ Thumbs.db
 # Additional files
 README.md
 test1.txt
+
