@@ -3,3 +3,9 @@ __pycache__/
 .env
 *.pyc
 .docker/
+.pytest_cache/
+terraform/
+terraform_workspace/
+Jenkinsfile
+README.md
+test1.txt
