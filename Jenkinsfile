@@ -56,13 +56,6 @@ pipeline {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
-    stage('checking the jenkins user')
-      steps {
-      sh 'whoami'              // Check the user
-      sh 'cat /proc/1/cgroup'  // Check if running in a container
-      sh 'apt-get update'
-     }
-    } 
     stage('Install jq') {
       steps {
         sh 'apt-get update && apt-get install -y jq'
