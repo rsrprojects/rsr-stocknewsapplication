@@ -56,16 +56,9 @@ pipeline {
         sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
       }
     }
-    stage('Run sudo') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'Shlompass', passwordVariable: 'SHLOMPASS')]) {
-                    sh 'echo "$SHLOMPASS" | sudo -S apt-get update'
-                }
-            }
-        }
     stage('Install jq') {
       steps {
-        sh 'sudo apt-get update && apt-get install -y jq'
+        sh 'apt-get update && apt-get install -y jq'
       }
     }
     stage('Trigger Terraform Plan in Terraform Cloud') {
