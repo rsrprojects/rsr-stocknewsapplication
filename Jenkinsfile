@@ -58,7 +58,7 @@ pipeline {
     }
     stage('Install jq') {
       steps {
-        sh 'apt-get update && apt-get install -y jq'
+        sh 'sudo apt-get update && apt-get install -y jq'
       }
     }
     stage('Trigger Terraform Plan in Terraform Cloud') {
